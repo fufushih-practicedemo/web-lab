@@ -73,9 +73,9 @@ class MyPromise {
                     if (this.status !== PROMISE_STATUS_PENDING) return
 
                     this.status = PROMISE_STATUS_REJECTED
-                    this.value = value
+                    this.reason = value
                     this.onRejectedFns.forEach((fn) => {
-                        fn(this.value) // pass data
+                        fn(this.reason) // pass data
                     })
                 })
             }
