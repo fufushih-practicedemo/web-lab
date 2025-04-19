@@ -1,42 +1,42 @@
-name: 🚀 Deploy selected packages to GitHub Pages
+name: Deploy static content to Pages
 
-# 只要 push 到 main，就會觸發
 on:
+  # Runs on pushes targeting the default branch
   push:
-    branches: [ main ]
+    branches: ["main"]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
+  # Single deploy job since we're just deploying
   deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-
-      # 1. 先把程式碼拉下來
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      # 2. 準備一個暫存資料夾 public/
-      - name: Prepare public directory
-        run: |
-          # 建資料夾
-          mkdir public
-
-          # 把所有 packages 裡的東西同步到 public
-          # 但排除不想 Deploy 的 site‑X
-          rsync -av packages/ public/ \
-            --exclude 'js-practice' 
-
-          # （如果你想只包含 site-A、site-C，可以改成 --include 'site-A' --include 'site-C' --exclude '*'）
-
-      # 3. 設定 Pages (告訴 GH 要用 Actions 來發佈)
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v3
-
-      # 4. 上傳要發佈的產物
-      - name: Upload artifact for Pages
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: public
-
-      # 5. 執行真正的部署
+          # Upload entire repository
+          path: './packages'
       - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4
