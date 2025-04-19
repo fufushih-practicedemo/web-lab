@@ -1,0 +1,42 @@
+name: 🚀 Deploy selected packages to GitHub Pages
+
+# 只要 push 到 main，就會觸發
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+
+      # 1. 先把程式碼拉下來
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. 準備一個暫存資料夾 public/
+      - name: Prepare public directory
+        run: |
+          # 建資料夾
+          mkdir public
+
+          # 把所有 packages 裡的東西同步到 public
+          # 但排除不想 Deploy 的 site‑X
+          rsync -av packages/ public/ \
+            --exclude 'js-practice' 
+
+          # （如果你想只包含 site-A、site-C，可以改成 --include 'site-A' --include 'site-C' --exclude '*'）
+
+      # 3. 設定 Pages (告訴 GH 要用 Actions 來發佈)
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v3
+
+      # 4. 上傳要發佈的產物
+      - name: Upload artifact for Pages
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: public
+
+      # 5. 執行真正的部署
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v1
