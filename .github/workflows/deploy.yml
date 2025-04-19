@@ -33,10 +33,10 @@ jobs:
 
       # 4. 上傳要發佈的產物
       - name: Upload artifact for Pages
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v3
         with:
           path: public
 
       # 5. 執行真正的部署
       - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v1
+        uses: actions/deploy-pages@v4
